@@ -17,10 +17,14 @@ services:
   # above, started by a bare `docker compose up`). This service only starts when
   # explicitly named, e.g. `docker compose up dashboard` or via Docker Desktop's UI.
   dashboard:
-    build: .
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     platform: linux/amd64
     profiles: ["dashboard"]
-    command: ["streamlit", "run", "frontend/streamlit_app.py", "--server.address=0.0.0.0", "--server.headless=true"]
+    depends_on:
+      tinycedx:
+        condition: service_completed_successfully
     environment:
       REPLAY_LLM: "true"
       SEED_DIR: "/app/seed"

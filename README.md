@@ -2,6 +2,8 @@
 
 **CASE_ID: `CEDX-EB3505`**
 
+**Live dashboard (optional, not part of the graded path):** https://insurance-claim-fleet-agent.streamlit.app/ — if it loads with no data, click **"Run pipeline"** at the top of the page once to generate `out/audit.json` (runs fully offline via `REPLAY_LLM=true`, no API key needed, takes a few seconds).
+
 ## 1. Industry & Scope
 
 - **Industry:** Insurance (Commercial / Specialty) — Claims Intake (Tier 2, cedxsystems.com/workflows)
@@ -40,7 +42,7 @@ make probe-idempotency
 
 Default path (`REPLAY_LLM=true`) is fully offline — no API key needed, replays the committed `transcripts/`. Set `REPLAY_LLM=false` with `LLM_API_KEY`/`LLM_MODEL`/`LLM_BASE_URL` for a real run (see §10).
 
-Optional dashboard (not part of the graded path): `pip install -r frontend/requirements.txt && streamlit run frontend/streamlit_app.py`.
+Optional dashboard (not part of the graded path): live at https://insurance-claim-fleet-agent.streamlit.app/, or run locally with `pip install -r frontend/requirements.txt && streamlit run frontend/streamlit_app.py`. If the page loads empty, click **"Run pipeline"** — it generates `out/audit.json` on the spot (offline, no key needed).
 
 ## 4. Controls
 

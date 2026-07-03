@@ -2,7 +2,7 @@
 
 **CASE_ID: `CEDX-EB3505`**
 
-**Live dashboard (optional, not part of the graded path):** https://insurance-claim-fleet-agent.streamlit.app/ — if it loads with no data, click **"Run pipeline"** at the top of the page once to generate `out/audit.json` (runs fully offline via `REPLAY_LLM=true`, no API key needed, takes a few seconds).
+**Live dashboard:** https://insurance-claim-fleet-agent.streamlit.app/ — if it loads with no data, click **"Run pipeline"** at the top of the page once to generate `out/audit.json` (runs fully offline via `REPLAY_LLM=true`, no API key needed, takes a few seconds).
 
 ## 1. Industry & Scope
 

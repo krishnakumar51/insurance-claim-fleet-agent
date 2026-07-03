@@ -1,0 +1,21 @@
+{
+  "agent": "verifier",
+  "cost_usd": 3.45e-05,
+  "created_at": "2026-07-02T18:12:01.381972+00:00",
+  "delivered_fields_hash": null,
+  "latency_ms": 2290.4078000010486,
+  "model": "openai/gpt-4o-mini",
+  "prompt_version": "verifier-v1",
+  "record_id": "PROBE-BUDGET-1",
+  "request": {
+    "system": "You are the Verifier agent. You are given SOURCE fields and a DRAFT\nsummary written by a different agent (the Worker). Decide whether the summary\nfaithfully reflects ONLY the source fields, with no invented figures, names,\ndates, or claims beyond what the source supports.\n\nReply with strict JSON only:\n{\"faithful\": true, \"issue\": null}\nor\n{\"faithful\": false, \"issue\": \"<short reason>\"}",
+    "user": "{\"draft_summary\": \"This is a routine renewal claim for the amount of $4200. The deadline for this claim is set for August 1, 2026.\", \"source\": {\"amount\": 4200.0, \"category\": \"RENEWAL\", \"deadline\": \"2026-08-01\", \"notes\": \"Routine renewal.\", \"owner\": \"j.doe\"}}"
+  },
+  "response": {
+    "faithful": true,
+    "issue": null
+  },
+  "response_hash": "sha256:91aa0ccfb728ab2a5e294f63fba5fe219837896608bd9167e29e70ac66e43d66",
+  "tokens_in": 182,
+  "tokens_out": 12
+}

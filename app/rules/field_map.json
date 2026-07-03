@@ -1,0 +1,9 @@
+{
+  "id": {"primary": ["id"], "synonyms": ["record_id", "ref", "reference"]},
+  "owner": {"primary": ["owner"], "synonyms": ["assignee", "handler", "adjuster"]},
+  "deadline": {"primary": ["deadline"], "synonyms": ["due_date", "due", "sla_date"]},
+  "category": {"primary": ["category"], "synonyms": ["type", "kind", "claim_type"]},
+  "notes": {"primary": ["notes"], "synonyms": ["remarks", "comment", "comments", "description"]},
+  "version": {"primary": ["version"], "synonyms": ["rev", "revision"]},
+  "amount": {"primary": ["amount"], "synonyms": ["value", "amt", "sum", "total", "claim_amount"]}
+}

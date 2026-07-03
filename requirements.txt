@@ -1,0 +1,11 @@
+# verify_audit.py needs jsonschema. pypdf is here for a Python reference intake;
+# if you build in another language, replace these with your own deps.
+jsonschema>=4.0
+pypdf>=4.0
+
+# Agent fleet
+langgraph>=0.2.0
+pydantic>=2.6
+openai>=1.40.0
+python-dotenv>=1.0
+

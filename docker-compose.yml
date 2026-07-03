@@ -1,0 +1,33 @@
+services:
+  tinycedx:
+    build: .
+    platform: linux/amd64
+    environment:
+      REPLAY_LLM: "true"
+      SEED_DIR: "/app/seed"
+      CASE_ID: "${CASE_ID:-CEDX-EB3505}"
+      PIPELINE_NOW: "2026-06-26"
+      # For the held-out real-LLM run, graders set:
+      #   REPLAY_LLM=false, LLM_API_KEY=..., LLM_MODEL=gpt-4o-mini|claude-3-5-haiku|gemini-1.5-flash
+    volumes:
+      - ./out:/app/out
+      - ./transcripts:/app/transcripts
+
+  # Optional visualization dashboard — NOT part of the graded path (that's `tinycedx`
+  # above, started by a bare `docker compose up`). This service only starts when
+  # explicitly named, e.g. `docker compose up dashboard` or via Docker Desktop's UI.
+  dashboard:
+    build: .
+    platform: linux/amd64
+    profiles: ["dashboard"]
+    command: ["streamlit", "run", "frontend/streamlit_app.py", "--server.address=0.0.0.0", "--server.headless=true"]
+    environment:
+      REPLAY_LLM: "true"
+      SEED_DIR: "/app/seed"
+      CASE_ID: "${CASE_ID:-CEDX-EB3505}"
+      PIPELINE_NOW: "2026-06-26"
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./out:/app/out
+      - ./transcripts:/app/transcripts

@@ -1,4 +1,4 @@
-# Tiny CEDX Agent Fleet — Insurance Claims Intake
+# CEDX Agent Fleet — Insurance Claims Intake
 
 **CASE_ID: `CEDX-EB3505`**
 

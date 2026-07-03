@@ -1,3 +1,15 @@
-# Install separately: pip install -r frontend/requirements.txt
+# Streamlit Cloud installs from THIS file for the dashboard app (main file:
+# frontend/streamlit_app.py). It must be self-sufficient: the "Run pipeline"
+# button shells out to `python -m app.cli.main`, which needs the full app
+# stack too, not just streamlit/pandas.
 streamlit>=1.40
 pandas>=2.2
+
+# Same as root requirements.txt -- duplicated here because Streamlit Cloud
+# only installs from the requirements.txt next to the app's main file.
+jsonschema>=4.0
+pypdf>=4.0
+langgraph>=0.2.0
+pydantic>=2.6
+openai>=1.40.0
+python-dotenv>=1.0

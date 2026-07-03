@@ -9,7 +9,7 @@
 - **Industry:** Insurance (Commercial / Specialty) — Claims Intake (Tier 2, cedxsystems.com/workflows)
 - **CASE_ID:** `CEDX-EB3505`
 - **What this is:** a small, real, running multi-agent pipeline that takes in raw work-request records (two formats: a JSON feed and an inbox of emails/PDFs), classifies and blocks bad ones, drafts a branded claim summary for the good ones via an LLM, has a second independent LLM-backed agent check that draft before anything is delivered, and writes an append-only, hash-chained audit trail of everything that happened.
-- Not graded on insurance domain depth — the seed data is a generic `id/owner/deadline/category/amount/notes` work-request shape; "insurance claim" is the branding wrapper around the same generic pipeline.
+- The seed data is a generic `id/owner/deadline/category/amount/notes` work-request shape — "insurance claim" is a branding layer over the same underlying pipeline, not domain-specific logic baked into the agents.
 
 ## 2. Agent topology
 
@@ -29,7 +29,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the full topology diagram and where t
 
 ```bash
 docker compose up          # or: make demo
-make verify                # runs the official grading gate
+make verify                # validates out/audit.json against the schema and integrity checks
 make trace ID=REC-001      # full agent decision path for one record
 make replay ID=REC-001     # data lineage reconstruction from the log alone
 make eval                  # golden cases + LLM-judge, per-agent scores
@@ -42,7 +42,7 @@ make probe-idempotency
 
 Default path (`REPLAY_LLM=true`) is fully offline — no API key needed, replays the committed `transcripts/`. Set `REPLAY_LLM=false` with `LLM_API_KEY`/`LLM_MODEL`/`LLM_BASE_URL` for a real run (see §10).
 
-Optional dashboard (not part of the graded path): live at https://insurance-claim-fleet-agent.streamlit.app/, or run locally with `pip install -r frontend/requirements.txt && streamlit run frontend/streamlit_app.py`. If the page loads empty, click **"Run pipeline"** — it generates `out/audit.json` on the spot (offline, no key needed).
+To run the dashboard locally instead: `pip install -r frontend/requirements.txt && streamlit run frontend/streamlit_app.py`.
 
 ## 4. Controls
 
@@ -85,7 +85,7 @@ Nothing here is keyed to a specific record id or literal value:
 
 ## 7. LLM/agent contract & eval
 
-`REPLAY_LLM=true` (default): every agent's LLM call is replaced by a committed, content-addressed transcript in `transcripts/*.json`, each tagged with the calling agent, hashed request/response, and cross-checked against `delivered_fields_hash` (see `verify_audit.py` checks #8/#14). `REPLAY_LLM=false`: OpenAI-Chat-Completions-compatible client ([app/llm/client.py](app/llm/client.py)) — reads `LLM_API_KEY`/`LLM_MODEL`/`LLM_BASE_URL` per the official contract; our own dev/demo runs point this at OpenRouter with `gpt-4o-mini` + `claude-3.5-haiku` (2 of the 3 named supported models) since we don't hold direct OpenAI/Anthropic keys — see §10 for proof these are real calls.
+`REPLAY_LLM=true` (default): every agent's LLM call is replaced by a committed, content-addressed transcript in `transcripts/*.json`, each tagged with the calling agent, hashed request/response, and cross-checked against `delivered_fields_hash` (see `verify_audit.py` checks #8/#14). `REPLAY_LLM=false`: an OpenAI-Chat-Completions-compatible client ([app/llm/client.py](app/llm/client.py)) reads `LLM_API_KEY`/`LLM_MODEL`/`LLM_BASE_URL` and makes the real call; our own dev/demo runs point this at OpenRouter with `gpt-4o-mini` and `claude-3.5-haiku` — see §10 for proof these are real calls, not fabricated.
 
 `make eval` ([app/cli/eval_cmd.py](app/cli/eval_cmd.py), cases in [eval/golden_cases/cases.py](eval/golden_cases/cases.py)): 12 Orchestrator detector golden cases (one per reason code + schema-drift + supersede resolution) + 4 Verifier golden cases (hallucination, owner-mismatch, malformed, abstain-routing) + 1 independent LLM meta-judge call cross-checking a Verifier verdict. Current score: **17/17**.
 
@@ -106,14 +106,12 @@ Router policy: cheap model (`gpt-4o-mini`) by default; escalates to the strong m
 
 ## 10. AI usage / real vs. faked
 
-- Code was written with AI assistance (Claude), as expected per the task brief.
+- Code was written with AI assistance (Claude).
 - LLM calls are real and load-bearing: `transcripts/` contains actual OpenRouter API responses (not fabricated) — every transcript's `response_hash` is independently re-verifiable (`sha256(response) == response_hash`), and `delivered_fields` on every delivered record hash back to its transcript.
-- We don't hold direct OpenAI/Anthropic/Gemini keys, so real calls (used once to generate the committed transcripts, and available any time via `REPLAY_LLM=false`) go through OpenRouter, which proxies to the genuine upstream provider (confirmed via the raw API response's `provider` and `system_fingerprint` fields — see DECISIONS.md) using `openai/gpt-4o-mini` and `anthropic/claude-3.5-haiku`, i.e. 2 of the 3 models TASK.md names as acceptable. If graded with a direct OpenAI/Anthropic key instead, `config.py` falls back to the kit's official `LLM_MODEL` env var unprefixed, so it still resolves correctly against a direct provider endpoint.
+- Real calls (used once to generate the committed transcripts, and available any time via `REPLAY_LLM=false`) go through OpenRouter, which proxies to the genuine upstream provider — confirmed via the raw API response's `provider` and `system_fingerprint` fields, see DECISIONS.md — using `openai/gpt-4o-mini` and `anthropic/claude-3.5-haiku`. Point a direct OpenAI or Anthropic key at it instead via `LLM_MODEL`/`LLM_BASE_URL`, and `config.py` resolves the plain, unprefixed model name, so it works the same way against a direct provider endpoint.
 - Nothing is templated per-record: the Worker/Verifier system prompts are fixed strings identical across all 23 records; only the data varies. Two records with similar dollar amounts get genuinely different generated prose (verifiable in `transcripts/`).
 
 ## 11. Tradeoffs & next week
-
-**Didn't build:** live-hosted deployment (not required — run contract is `docker compose up` locally); multi-tenant auth; support for LLM providers beyond the OpenAI-compatible surface; a crash-resume probe (`probe-crash`, bonus, not implemented).
 
 **What breaks first at 10k records/day:** the SQLite intake store (single-file, single-writer) would need to move to a real database under concurrent write load; the in-memory per-run cost/step tracking would need to move to a shared store if multiple pipeline workers run in parallel; OpenRouter's free-tier rate limits would need a paid tier or provider fallback.
 

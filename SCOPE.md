@@ -26,6 +26,6 @@ threshold T = 10000 + (int(H[1:3],16) % 50) * 1000
 - [x] Delivery (branded package + append-only audit + replay)
 
 ## What I will deliberately NOT build (and why)
-- No live-hosted UI/backend for the pipeline itself -- the run contract is `docker compose up` on the grader's machine, so a hosted deployment adds risk (uptime, cost, network dependency at grading time) without being part of the graded criteria. A local Streamlit dashboard is included as optional visualization only.
+- No hosted backend for the pipeline itself -- it runs via `docker compose up` and exits, which is the natural shape for a batch job. A companion dashboard is deployed separately (https://insurance-claim-fleet-agent.streamlit.app/) purely for visualizing runs.
 - No multi-tenant auth/user accounts -- out of scope for a single-CASE_ID demo pipeline.
-- No support for LLM providers beyond the OpenAI-compatible surface -- sufficient to satisfy the "≥1 of gpt-4o-mini/claude-3-5-haiku/gemini-1.5-flash" requirement without adding provider-specific SDKs.
+- No support for LLM providers beyond the OpenAI-compatible surface -- `gpt-4o-mini` and `claude-3.5-haiku` via OpenRouter cover what's needed without adding provider-specific SDKs.

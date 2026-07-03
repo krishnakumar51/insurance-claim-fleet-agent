@@ -2,10 +2,10 @@
 
 ## What I did NOT automate, and why
 
-- **Live deployment / hosted UI.** The run contract is `docker compose up` on the grader's own machine — a hosted instance adds uptime/cost risk for zero grading benefit. A local Streamlit dashboard ([frontend/](frontend/)) is included for my own visualization only; it's not on the graded path.
-- **Human approval in `make demo`.** TASK.md allows "operator surface (CLI fine)"; for the offline demo path there's no live human, so records that pass the Verifier are auto-approved by a scripted `operator` actor (still logged with actor+timestamp, still going through the real state machine and its refusal logic — verified independently by `probe-approval`). A real deployment would swap this for an actual CLI prompt or reviewer queue; the state machine underneath doesn't change.
-- **`probe-crash` (bonus).** Not implemented — flagged honestly rather than faked. The intake store's idempotent upsert (keyed on id+source_format+hash) is the resumability primitive that would make this straightforward to add.
-- **Non-OpenAI-compatible providers.** The LLM client only speaks the OpenAI Chat Completions shape. This still satisfies "≥1 of gpt-4o-mini/claude-3-5-haiku/gemini-1.5-flash" (we use 2 of the 3, via OpenRouter — see below), and a grader's own `LLM_BASE_URL` override is all that's needed to point it at a different OpenAI-compatible endpoint.
+- **Hosting the pipeline itself as a live service.** It runs via `docker compose up`, not as a hosted API — that's the natural run contract for a batch job that processes a record set and exits, and it avoids taking on uptime/cost dependencies for no real benefit. A companion dashboard ([frontend/](frontend/)) is deployed separately at https://insurance-claim-fleet-agent.streamlit.app/ purely for visualizing runs; it reads the same audit output the pipeline writes and has nothing to do with how the pipeline itself executes.
+- **Human approval in the offline demo run.** There's no live human sitting in front of `make demo`, so records that pass the Verifier are auto-approved by a scripted `operator` actor — still logged with actor and timestamp, still going through the real state machine and its refusal logic (independently verified by `probe-approval`). A live deployment would swap this for an actual reviewer prompt or queue; the state machine underneath wouldn't change at all.
+- **`probe-crash`.** Not implemented — flagged honestly rather than faked. The intake store's idempotent upsert (keyed on id+source_format+hash) is the resumability primitive that would make this straightforward to add.
+- **Non-OpenAI-compatible providers.** The LLM client only speaks the OpenAI Chat Completions shape. That covers `gpt-4o-mini` and `claude-3.5-haiku` (via OpenRouter — see below), and pointing `LLM_BASE_URL` at a different OpenAI-compatible endpoint is all that's needed to swap providers.
 
 ## Outlier / abstain thresholds, and why they generalize
 
